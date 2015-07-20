@@ -37,8 +37,8 @@ llvm-cov.bc            llvm-mcmarkup.bc       macho-dump.bc          verify-usel
 llvm-cxxdump.bc        llvm-nm.bc             obj2yaml.bc            yaml2obj.bc
 ```
 
-5. Compile to JavaScipt.
+## Compile to JavaScipt
     
-    For example:
+For example:
         
-        emcc -Oz -v --llvm-lto 3 llvm-as.bc -o llvm-as.js
+    emcc -Oz -v --llvm-lto 3 llvm-as.bc -o llvm-as.js
