@@ -14,17 +14,19 @@ if [ -z "$LLVMDIR" ]; then
     exit 1
 fi
 echo "llvm is in $LLVMDIR"
-echo "Building build tools"
-cd $LLVMDIR
-mkdir tool-build
-cd tool-build
+if [ -d "$LLVMDIR/emscripten-build" ]; then
+    echo "Please sudo rm -rf $LLVMDIR/emscripten-build."
+    exit 1
+fi
+echo "Building build tools ..."
+mkdir -p $LLVMDIR/tool-build &&
+cd $LLVMDIR/tool-build &&
 ../configure $CONFIG_ARGS &&
 BUILD_DIRS_ONLY=1 make -j4 || exit 1
-cd ..
 
-echo "Building Bitcode of llvm tools"
-mkdir emscripten-build
-cd emscripten-build
+echo "Building Bitcode of llvm tools ..."
+mkdir -p $LLVMDIR/emscripten-build &&
+cd $LLVMDIR/emscripten-build &&
 $EMSCRIPTEN_ROOT/emconfigure ../configure $CONFIG_ARGS --with-extra-options=-Wno-warn-absolute-paths || exit 2
 #sed -e '/HAVE_ARC4RANDOM/ s?^?//?' -i .bak include/llvm/Config/config.h
 mkdir -p Release/bin &&
@@ -35,7 +37,7 @@ curl https://raw.githubusercontent.com/kripken/Relooper/master/ministring.h > in
 $EMSCRIPTEN_ROOT/emmake make -i -j4 #&> /dev/null
 
 echo "Copying tools to bitcode-for-js"
-#rm -rf $SCRIPTDIR/bitcode-for-js
-mkdir $SCRIPTDIR/bitcode-for-js
+rm -rf $SCRIPTDIR/bitcode-for-js
+mkdir -p $SCRIPTDIR/bitcode-for-js &&
 find $LLVMDIR/emscripten-build/Release/bin -maxdepth 1 -not -perm -111 -not -name ".*" -type f -exec basename {} \;| xargs -I% cp $LLVMDIR/emscripten-build/Release/bin/% $SCRIPTDIR/bitcode-for-js/%.bc
 
