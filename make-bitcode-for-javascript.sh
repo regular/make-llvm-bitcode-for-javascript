@@ -1,3 +1,4 @@
+CONFIG_ARGS="--enable-optimized --enable-targets=x86,js --enable-libcpp --disable-jit --disable-threads --disable-pthreads --disable-assertions --enable-cxx11 --enable-bindings=no --disable-zlib"
 if [ "$#" -ne 1 ]; then
     echo "Illegal number of parameters"
     exit 1
@@ -17,14 +18,14 @@ echo "Building build tools"
 cd $LLVMDIR
 mkdir tool-build
 cd tool-build
-../configure --enable-optimized --enable-targets=x86,js --enable-libcpp --disable-jit --disable-threads --disable-pthreads --disable-assertions --enable-cxx11 &&
+../configure $CONFIG_ARGS &&
 BUILD_DIRS_ONLY=1 make -j4 || exit 1
 cd ..
 
 echo "Building Bitcode of llvm tools"
 mkdir emscripten-build
 cd emscripten-build
-$EMSCRIPTEN_ROOT/emconfigure ../configure --with-extra-options=-Wno-warn-absolute-paths --enable-optimized --enable-targets=x86,js --enable-libcpp --disable-jit --disable-threads --disable-pthreads --disable-assertions --enable-bindings=no --disable-zlib || exit 2
+$EMSCRIPTEN_ROOT/emconfigure ../configure $CONFIG_ARGS --with-extra-options=-Wno-warn-absolute-paths || exit 2
 #sed -e '/HAVE_ARC4RANDOM/ s?^?//?' -i .bak include/llvm/Config/config.h
 mkdir -p Release/bin &&
 cp ../tool-build/Release/bin/* Release/bin &&
